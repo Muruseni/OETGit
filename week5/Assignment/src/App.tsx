@@ -1,14 +1,47 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import UserList from "./pages/UserList";
-import UserProfile from "./pages/UserProfile";
+import { useState } from 'react';
+import FeedbackForm from './components/FeedbackForm';
+import LoginForm from './components/LoginForm';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [token, setToken] = useState('');
+
+  const handleLoginSuccess = (nextToken: string) => {
+    localStorage.setItem('my_real_token', nextToken);
+    setToken(nextToken);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('my_real_token');
+    setIsLoggedIn(false);
+    setToken('');
+  };
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<UserList />} />
-        <Route path="/user/:id" element={<UserProfile />} />
-      </Routes>
-    </Router>
+    <div className="p-8 max-w-lg mx-auto mt-10 font-sans">
+      {isLoggedIn ? (
+        <div>
+          <div className="bg-zinc-800 p-4 rounded-xl flex items-center justify-between shadow-md mb-6 gap-3">
+            <span className="text-green-500 font-bold px-2">You are logged <br />in!</span>
+            <div className="bg-white text-gray-600 text-xs p-2 rounded w-40 truncate">
+              Your token:
+              <br />
+              {token}
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded font-bold hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+
+          <FeedbackForm />
+        </div>
+      ) : (
+        <LoginForm onLoginSuccess={handleLoginSuccess} />
+      )}
+    </div>
   );
 }
